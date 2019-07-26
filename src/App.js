@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 import { DisplayFormikState } from "./helper";
-import {
-  Formik,
-  Form,
-  Field,
-  ErrorMessage,
-  FieldArray,
-  withFormik
-} from "formik";
+import { Formik, Form, Field, ErrorMessage, FieldArray } from "formik";
 import MySelect from "./MySelect";
 import PhoneInput from "./PhoneInput";
 import "./App.css";
@@ -116,12 +109,6 @@ const validate = values => {
   if (values.todos.length > 0 && values.todos[0] === "cebula") {
     errors.todos[0] =
       "No chyba nie bedziesz bral w pierwszej kolejnosci cebuli ;)";
-  }
-  if (
-    values.todos.length > 0 &&
-    values.todos.reduce((prev, curr) => prev + curr) === ""
-  ) {
-    errors.todosEmpty = "nie mozesz zostawic inputow pustych ;)";
   }
 
   return errors;
@@ -350,7 +337,19 @@ const MyForm = props => {
   );
 };
 
-const CustomFormValidate = withFormik({})(MyForm);
+function CustomFormValidate(MyForm, props) {
+  const { values, errors } = props;
+  console.log(props);
+  if (
+    values.todos.length > 0 &&
+    values.todos.reduce((prev, curr) => prev + curr) === ""
+  ) {
+    errors.todosEmpty = "nie mozesz zostawic inputow pustych ;)";
+  }
+  let newProps = { ...props, errors };
+
+  return <MyForm {...newProps} />;
+}
 
 // //   values, props) => {
 // //   let todo = {};
@@ -385,9 +384,8 @@ function App() {
           }, 500);
         }}
         enableReinitialize={true}
-      >
-        <CustomFormValidate />
-      </Formik>
+        render={props => CustomFormValidate(MyForm, props)}
+      />
 
       <button onClick={fetchInitialValues}>CLICK ME IM SERVER</button>
       <button>Im state values</button>
