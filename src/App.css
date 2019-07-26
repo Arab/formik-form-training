@@ -105,3 +105,10 @@ button.outline {
 .error {
   color: red;
 }
+.phoneNumber {
+  margin: 1rem 0;
+}
+.todosLabel {
+  font-size: 24px;
+  font-style: bold;
+}

@@ -1,14 +1,23 @@
 import React, { useState } from "react";
 import { DisplayFormikState } from "./helper";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import {
+  Formik,
+  Form,
+  Field,
+  ErrorMessage,
+  FieldArray,
+  withFormik
+} from "formik";
 import MySelect from "./MySelect";
+import PhoneInput from "./PhoneInput";
 import "./App.css";
 
 const fetchedInitialValues = {
-  firstName: "P",
-  lastName: "M",
+  firstName: "Piotr",
+  lastName: "Mgfhjk",
   age: 30,
   gender: "male",
+  phoneNumber: "+48 690-478-822",
   destination: [
     {
       value: "london",
@@ -23,14 +32,16 @@ const fetchedInitialValues = {
       isOther: true,
       value: "Ja <3 bagietki, ale grzybów nie mogę"
     }
-  }
+  },
+  todos: ["cleanhouse", "wash dishes"]
 };
 
 const blankValues = {
   firstName: "",
   lastName: "",
   age: 0,
-  gender: "",
+  gender: "male",
+  phoneNumber: "+48 ",
   destination: [],
   dietaryRestrictions: {
     isVegan: false,
@@ -40,12 +51,17 @@ const blankValues = {
       isOther: false,
       value: ""
     }
-  }
+  },
+  todos: [],
+  todosEmpty: ""
 };
 
 const validate = values => {
   let errors = {};
   //first name validation
+  if (values.gender === "") {
+    errors.gender = "halo";
+  }
   if (!values.firstName) {
     errors.firstName = "Required";
   } else if (values.firstName.length < 3) {
@@ -71,12 +87,6 @@ const validate = values => {
     !values.dietaryRestrictions.isLactoseFree &&
     !values.dietaryRestrictions.other.isOther
   ) {
-    console.log(
-      values.dietaryRestrictions.isVegan,
-      values.dietaryRestrictions.isKosher,
-      values.dietaryRestrictions.isLactoseFree,
-      values.dietaryRestrictions.other.isOther
-    );
     errors.dietaryRestrictions =
       "no nie no w to nie uwierze, wybierz chociaz jedna :P";
   }
@@ -84,19 +94,58 @@ const validate = values => {
     values.dietaryRestrictions.other.isOther &&
     values.dietaryRestrictions.other.value.length === 0
   ) {
-    errors.dietaryRestrictions = "jak juz wybrales inne to cos napisz...";
+    errors.other = "jak juz wybrales inne to cos napisz...";
   }
   if (values.destination.length === 0) {
     errors.destination = "musisz wybrać gdzie chcesz jechać";
   }
+  if (values.phoneNumber.length < 15) {
+    errors.phoneNumber = "podany numer jest zbyt krótki";
+  }
+  if (values.todos.length === 0) {
+    errors.todo = "you need to add at least 1 thing";
+  }
+  if (values.todos.length > 3) {
+    errors.todo = "you can to add max 3 things";
+  }
+  if (values.todos.length > 0) {
+    errors.todos = values.todos.map(todo =>
+      todo === "cebula" ? "w ogole nie zabieraj cebuli na poklad" : null
+    );
+  }
+  if (values.todos.length > 0 && values.todos[0] === "cebula") {
+    errors.todos[0] =
+      "No chyba nie bedziesz bral w pierwszej kolejnosci cebuli ;)";
+  }
+  if (
+    values.todos.length > 0 &&
+    values.todos.reduce((prev, curr) => prev + curr) === ""
+  ) {
+    errors.todosEmpty = "nie mozesz zostawic inputow pustych ;)";
+  }
 
   return errors;
 };
+// const customValidate = withFormik({
+
+// })
+
+// //   values, props) => {
+// //   let todo = {};
+// //   console.log(props);
+// //   if (
+// //     values.todos.length > 0 &&
+// //     values.todos.reduce((prev, curr) => prev + curr) === ""
+// //   ) {
+// //     todo = "nie mozesz zostawic inputow pustych ;)";
+// //   }
+// //   return { ...props.errors, todo };
+// // };
 
 function App() {
   const [initialValues, setInitialValues] = useState(blankValues);
+
   const fetchInitialValues = () => {
-    console.log("click");
     setInitialValues({ ...fetchedInitialValues });
   };
   return (
@@ -124,7 +173,7 @@ function App() {
             handleChange,
             handleReset,
             setFieldValue,
-            setFieldTouched,
+            handleBlur,
             isSubmitting
           } = props;
           return (
@@ -180,10 +229,20 @@ function App() {
                 <label htmlFor="female"> Female</label>
               </div>
 
+              <ErrorMessage
+                name="gender"
+                render={msg => <div className="error">{msg}</div>}
+              />
+              <Field name="phoneNumber" component={PhoneInput} />
+              <ErrorMessage
+                name="phoneNumber"
+                render={msg => <div className="error">{msg}</div>}
+              />
+
               <MySelect
                 value={values.destination}
                 onChange={setFieldValue}
-                onBlur={setFieldTouched}
+                onBlur={handleBlur}
                 error={errors.destination}
                 touched={touched.destination}
               />
@@ -203,7 +262,7 @@ function App() {
                   name="dietaryRestrictions.isKosher"
                   checked={values.dietaryRestrictions.isKosher}
                 />
-                <label htmlFor="isVegan"> Do you want kosher food?</label>
+                <label htmlFor="isKosher"> Do you want kosher food?</label>
                 <br />
                 <Field
                   id="isLactoseFree"
@@ -223,12 +282,25 @@ function App() {
                 {values.dietaryRestrictions.other.isOther ? (
                   <React.Fragment>
                     <br />
+                    <br />
                     <Field
                       className="other"
                       type="text"
                       name="dietaryRestrictions.other.value"
                       placeholder="Write anything we should know about your dietary restrictions"
                     />
+                    {!!errors.other &&
+                      (touched
+                        ? touched.dietaryRestrictions
+                          ? touched.dietaryRestrictions.other
+                            ? touched.dietaryRestrictions.other.value
+                            : false
+                          : false
+                        : false) && (
+                        <div style={{ color: "red", marginTop: ".5rem" }}>
+                          {errors.other}
+                        </div>
+                      )}
                   </React.Fragment>
                 ) : null}
                 <ErrorMessage
@@ -236,6 +308,78 @@ function App() {
                   render={msg => <div className="error">{msg}</div>}
                 />
               </div>
+              <div className="todosLabel">Things you wish to not forget:</div>
+              <FieldArray
+                name="todos"
+                render={arrayHelpers => (
+                  <div>
+                    {values.todos && values.todos.length > 0 ? (
+                      values.todos.map((todo, index) => (
+                        <div key={index}>
+                          {index > 2 ? (
+                            <Field
+                              name={`todos.${index}`}
+                              style={{
+                                width: "300px",
+                                backgroundColor: "lightgray"
+                              }}
+                              placeholder="no no no look down!"
+                              disabled
+                            />
+                          ) : (
+                            <Field
+                              style={{ width: "300px" }}
+                              name={`todos.${index}`}
+                            />
+                          )}
+                          <button
+                            type="button"
+                            onClick={() => arrayHelpers.remove(index)}
+                          >
+                            -
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => arrayHelpers.insert(index + 1, "")}
+                          >
+                            +
+                          </button>
+                          {errors && touched ? (
+                            errors.todos && touched.todos ? (
+                              errors.todos[index] && touched.todos[index] ? (
+                                <div
+                                  style={{ color: "red", marginTop: ".5rem" }}
+                                >
+                                  {errors.todos[index]}
+                                </div>
+                              ) : null
+                            ) : null
+                          ) : null}
+                        </div>
+                      ))
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => arrayHelpers.push("")}
+                      >
+                        Add a thing
+                      </button>
+                    )}
+                  </div>
+                )}
+              />
+              {errors && touched ? (
+                errors.todo && touched.todos ? (
+                  <div style={{ color: "red", marginTop: ".5rem" }}>
+                    {errors.todo}
+                  </div>
+                ) : null
+              ) : null}
+
+              <ErrorMessage
+                name="todosEmpty"
+                render={msg => <div className="error">{msg}</div>}
+              />
               <button
                 type="button"
                 className="outline"
@@ -255,9 +399,7 @@ function App() {
       </Formik>
 
       <button onClick={fetchInitialValues}>CLICK ME IM SERVER</button>
-      <button onClick={() => console.log(initialValues)}>
-        Im state values
-      </button>
+      <button>Im state values</button>
     </div>
   );
 }
