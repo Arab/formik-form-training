@@ -34,7 +34,10 @@ class MySelect extends React.Component {
             value={this.props.value}
           />
           {!!this.props.error && this.props.touched && (
-            <div style={{ color: "red", marginTop: ".5rem" }}>
+            <div
+              data-testid="errors-destination"
+              style={{ color: "red", marginTop: ".5rem" }}
+            >
               {this.props.error}
             </div>
           )}
