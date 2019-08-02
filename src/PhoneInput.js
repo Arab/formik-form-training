@@ -11,19 +11,20 @@ class PhoneInput extends React.Component {
 
   handleChange = e => {
     let phoneNumber = e.target.value;
-    console.log("before: ", phoneNumber);
+    // console.log("before: ", phoneNumber);
     phoneNumber = phoneNumber.substr(4);
     phoneNumber = phoneNumber.replace(/\s+/g, "");
     phoneNumber = phoneNumber.replace("e", "");
     phoneNumber = phoneNumber.replace(".", "");
     phoneNumber = this.clearPhoneNumberFormat(phoneNumber);
 
+    //  phoneNumber = Number(phoneNumber);
     if (isNaN(phoneNumber)) {
       return;
     }
     phoneNumber = this.renderPhoneNumberFormat(phoneNumber);
 
-    console.log("after: ", phoneNumber);
+    // console.log("after: ", phoneNumber);
     this.setState({ phoneNumber }, () => {
       const phoneNumber = this.state.phonePrefix + this.state.phoneNumber;
       this.props.form.setFieldValue("phoneNumber", phoneNumber);

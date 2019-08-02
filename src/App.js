@@ -177,7 +177,7 @@ const MyForm = props => {
           name="gender"
           value="male"
           onChange={handleChange}
-          checked={values.gender === "male"}
+          checked={values.gender === "male" ? true : false}
         />
         <label htmlFor="male"> Male</label>
         <input
@@ -186,7 +186,7 @@ const MyForm = props => {
           name="gender"
           value="female"
           onChange={handleChange}
-          checked={values.gender === "female"}
+          checked={values.gender === "female" ? true : false}
         />
         <label htmlFor="female"> Female</label>
       </div>
@@ -378,7 +378,7 @@ const MyForm = props => {
 
 function CustomFormValidate(MyForm, props) {
   const { values, errors } = props;
-  console.log(props);
+  // console.log(props);
   if (
     values.todos.length > 0 &&
     values.todos.reduce((prev, curr) => prev + curr) === ""

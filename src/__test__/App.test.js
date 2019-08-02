@@ -18,8 +18,6 @@ import userEvent from "@testing-library/user-event";
 
 afterEach(cleanup);
 
-const leftClick = { button: 0 };
-
 it("renders without crashing", () => {
   const div = document.createElement("div");
   ReactDOM.render(<App />, div);
@@ -44,10 +42,49 @@ test("age input exists", () => {
   expect(input).toBeInTheDocument();
 });
 
+test("male/female radio buttons exists and clicking change them", () => {
+  const { getByLabelText } = render(<App />);
+  const male = getByLabelText("Male");
+  const female = getByLabelText("Female");
+  expect(male).toBeInTheDocument();
+  expect(male.checked).toBe(true);
+  expect(female).toBeInTheDocument();
+  expect(female.checked).toBe(false);
+  fireEvent.click(female);
+  expect(male.checked).toBe(false);
+  expect(female.checked).toBe(true);
+});
+
+test("phone number shows corectly - every 3 digits", async () => {
+  const { getByLabelText } = render(<App />);
+  const actualyTypeing = (input, text) => {
+    const oldValue = input.value;
+    const newValue = oldValue + text;
+    userEvent.type(input, newValue);
+  };
+  let phoneNumberInput = getByLabelText(/phone number/i);
+  expect(phoneNumberInput).toBeInTheDocument();
+  expect(phoneNumberInput.value).toBe("+48 ");
+  userEvent.type(phoneNumberInput, "a");
+  expect(phoneNumberInput.value).toBe("+48 ");
+  userEvent.type(phoneNumberInput, "0.5");
+  expect(phoneNumberInput.value).toBe("+48 ");
+  actualyTypeing(phoneNumberInput, "000");
+  expect(phoneNumberInput.value).toBe("+48 000");
+  actualyTypeing(phoneNumberInput, "0");
+  expect(phoneNumberInput.value).toBe("+48 000-0");
+  actualyTypeing(phoneNumberInput, "00");
+  expect(phoneNumberInput.value).toBe("+48 000-000");
+  actualyTypeing(phoneNumberInput, "0");
+  expect(phoneNumberInput.value).toBe("+48 000-000-0");
+  actualyTypeing(phoneNumberInput, "00");
+  expect(phoneNumberInput.value).toBe("+48 000-000-000");
+  actualyTypeing(phoneNumberInput, "0");
+  expect(phoneNumberInput.value).toBe("+48 000-000-000");
+});
+
 test("name input empty validation", async () => {
-  const { getByPlaceholderText, container, findByTestId, getByText } = render(
-    <App />
-  );
+  const { getByPlaceholderText, container, findByTestId } = render(<App />);
   const inputName = getByPlaceholderText("Enter your name");
   expect(container.innerHTML).not.toMatch("Required");
   fireEvent.blur(inputName);
@@ -95,7 +132,7 @@ test("name input validation trigered by submit button", async () => {
   const { container, findByTestId, getByText } = render(<App />);
   const submitBtn = getByText("Submit");
   expect(container.innerHTML).not.toMatch("Required");
-  fireEvent.click(submitBtn, leftClick);
+  fireEvent.click(submitBtn);
   const validationErrors = await findByTestId("errors-firstName");
   expect(validationErrors.innerHTML).toMatch("Required");
 });
@@ -111,7 +148,8 @@ test("reset button is not disabled when form is changed", () => {
   const submitBtn = getByText("Reset");
   const inputName = getByPlaceholderText("Enter your name");
   expect(submitBtn.disabled).toBe(true);
-  fireEvent.change(inputName, { target: { value: "aa" } });
+  // fireEvent.change(inputName, { target: { value: "aa" } });
+  userEvent.type(inputName, "aa");
   expect(submitBtn.disabled).toBe(false);
 });
 
@@ -119,7 +157,7 @@ test("submit click fires all validation msgs", async () => {
   const { container, findByTestId, getByText } = render(<App />);
   const submitBtn = getByText("Submit");
   expect(container.innerHTML).not.toMatch("Required");
-  fireEvent.click(submitBtn, leftClick);
+  fireEvent.click(submitBtn);
   const validationErrors = await [
     findByTestId("errors-firstName"),
     findByTestId("errors-lastName"),
@@ -139,7 +177,7 @@ test("validation msgs disapear after loading data from server", async () => {
   const submitBtn = getByText("Submit");
   const serverBtn = getByText("CLICK ME IM SERVER");
   expect(container.innerHTML).not.toMatch("Required");
-  fireEvent.click(submitBtn, leftClick);
+  fireEvent.click(submitBtn);
   const validationErrors = await Promise.all([
     findByTestId("errors-firstName"),
     findByTestId("errors-lastName"),
@@ -152,7 +190,7 @@ test("validation msgs disapear after loading data from server", async () => {
     error.map(err => expect(err).toBeInTheDocument());
     return error;
   });
-  fireEvent.click(serverBtn, leftClick);
+  fireEvent.click(serverBtn);
   validationErrors.map(error => expect(error).not.toBeInTheDocument());
 });
 
@@ -189,15 +227,27 @@ test("test search and press enter on react-select", () => {
   expect(el.innerHTML).toMatch("London");
 });
 
-test("test react-select with keyboard navigation", async () => {
-  const { getByLabelText, container, findByLabelText } = render(<App />);
+test("test react-select with keyboard navigation", () => {
+  const { getByLabelText } = render(<App />);
   const el = getByLabelText("Select your destination");
   const inp = el.querySelector("input");
   fireEvent.focus(inp);
-  const elAsync = await findByLabelText("Select your destination");
-  const inpAsync = await elAsync.querySelector("input");
-  fireEvent.keyDown(inpAsync, { key: "Down", code: 40 });
-  fireEvent.keyDown(inpAsync, { key: "Down", code: 40 });
-  fireEvent.keyDown(inpAsync, { key: "Enter", code: 13, keyCode: 13 });
+  fireEvent.keyDown(inp, { key: "Down", code: 40 });
+  fireEvent.keyDown(inp, { key: "Down", code: 40 });
+  fireEvent.keyDown(inp, { key: "Enter", code: 13, keyCode: 13 });
   expect(el.innerHTML).toMatch("London");
+});
+
+test("test select all button", () => {
+  const { getByText } = render(<App />);
+  const selectAllButton = getByText(/Select All/i);
+  fireEvent.click(selectAllButton);
+  const destinations = [
+    getByText("Paris"),
+    getByText("London"),
+    getByText("New York"),
+    getByText("Madrid"),
+    getByText("Warsaw")
+  ];
+  destinations.map(destination => expect(destination).toBeInTheDocument());
 });
