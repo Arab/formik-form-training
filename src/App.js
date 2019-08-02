@@ -7,7 +7,7 @@ import "./App.css";
 
 const fetchedInitialValues = {
   firstName: "Piotr",
-  lastName: "Mgfhjk",
+  lastName: "Motak",
   age: 30,
   gender: "male",
   phoneNumber: "+48 690-478-822",
@@ -56,7 +56,7 @@ const validate = values => {
     errors.gender = "halo";
   }
   if (!values.firstName) {
-    errors.firstName = "Required";
+    errors.firstName = "First Name is Required";
   } else if (values.firstName.length < 3) {
     errors.firstName = "Wysil się imie musi mieć przynajmniej 3 litery";
   } else if (values.firstName !== "Piotr") {
@@ -64,7 +64,7 @@ const validate = values => {
   }
   //last name validation
   if (!values.lastName) {
-    errors.lastName = "Required";
+    errors.lastName = "Last Name is Required";
   } else if (values.lastName.length < 5) {
     errors.lastName =
       "Nazwiska mają przynajmniej 5 znaków w jakmi świecie Ty zyjesz lel";
@@ -136,7 +136,11 @@ const MyForm = props => {
       />
       <ErrorMessage
         name="firstName"
-        render={msg => <div className="error">{msg}</div>}
+        render={msg => (
+          <div data-testid="errors-firstName" className="error">
+            {msg}
+          </div>
+        )}
       />
       <Field
         type="text"
@@ -146,7 +150,11 @@ const MyForm = props => {
       />
       <ErrorMessage
         name="lastName"
-        render={msg => <div className="error">{msg}</div>}
+        render={msg => (
+          <div data-testid="errors-lastName" className="error">
+            {msg}
+          </div>
+        )}
       />
       <Field
         type="number"
@@ -156,7 +164,11 @@ const MyForm = props => {
       />
       <ErrorMessage
         name="age"
-        render={msg => <div className="error">{msg}</div>}
+        render={msg => (
+          <div data-testid="errors-age" className="error">
+            {msg}
+          </div>
+        )}
       />
       <div className="gender-wrapper">
         <input
@@ -181,12 +193,20 @@ const MyForm = props => {
 
       <ErrorMessage
         name="gender"
-        render={msg => <div className="error">{msg}</div>}
+        render={msg => (
+          <div data-testid="errors-gender" className="error">
+            {msg}
+          </div>
+        )}
       />
       <Field name="phoneNumber" component={PhoneInput} />
       <ErrorMessage
         name="phoneNumber"
-        render={msg => <div className="error">{msg}</div>}
+        render={msg => (
+          <div data-testid="errors-phoneNumber" className="error">
+            {msg}
+          </div>
+        )}
       />
 
       <MySelect
@@ -247,7 +267,10 @@ const MyForm = props => {
                     : false
                   : false
                 : false) && (
-                <div style={{ color: "red", marginTop: ".5rem" }}>
+                <div
+                  data-testid="errors-other-value"
+                  style={{ color: "red", marginTop: ".5rem" }}
+                >
                   {errors.other}
                 </div>
               )}
@@ -255,7 +278,11 @@ const MyForm = props => {
         ) : null}
         <ErrorMessage
           name="dietaryRestrictions"
-          render={msg => <div className="error">{msg}</div>}
+          render={msg => (
+            <div data-testid="errors-dietaryRestrictions" className="error">
+              {msg}
+            </div>
+          )}
         />
       </div>
       <div className="todosLabel">Things you wish to not forget:</div>
@@ -294,7 +321,10 @@ const MyForm = props => {
                   {errors && touched ? (
                     errors.todos && touched.todos ? (
                       errors.todos[index] && touched.todos[index] ? (
-                        <div style={{ color: "red", marginTop: ".5rem" }}>
+                        <div
+                          data-testid={`errors-todos-${index}`}
+                          style={{ color: "red", marginTop: ".5rem" }}
+                        >
                           {errors.todos[index]}
                         </div>
                       ) : null
@@ -312,13 +342,22 @@ const MyForm = props => {
       />
       {errors && touched ? (
         errors.todo && touched.todos ? (
-          <div style={{ color: "red", marginTop: ".5rem" }}>{errors.todo}</div>
+          <div
+            data-testid="errors-todo"
+            style={{ color: "red", marginTop: ".5rem" }}
+          >
+            {errors.todo}
+          </div>
         ) : null
       ) : null}
 
       <ErrorMessage
         name="todosEmpty"
-        render={msg => <div className="error">{msg}</div>}
+        render={msg => (
+          <div data-testid="errors-todosEmpty" className="error">
+            {msg}
+          </div>
+        )}
       />
       <button
         type="button"
