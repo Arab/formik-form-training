@@ -10,7 +10,9 @@ import {
   wait,
   waitForElementToBeRemoved,
   queryByAltText,
-  getByDisplayValue
+  getByDisplayValue,
+  findByText,
+  getByTestId
 } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import selectEvent from "react-select-event";
@@ -83,6 +85,56 @@ test("phone number shows corectly - every 3 digits", async () => {
   expect(phoneNumberInput.value).toBe("+48 000-000-000");
 });
 
+test("select destination exists", () => {
+  const { getByLabelText } = render(<App />);
+  const selectReact = getByLabelText(/select your destination/i);
+  expect(selectReact).toBeInTheDocument();
+});
+
+test("select all button exists", () => {
+  const { getByText } = render(<App />);
+  const selectAllButton = getByText(/select all/i);
+  expect(selectAllButton).toBeInTheDocument();
+});
+
+test("dietary checkboxes exists and when other is chosen there is aditional text input", async () => {
+  const { getByLabelText, findByPlaceholderText } = render(<App />);
+  const vegan = getByLabelText(/are you vegan?/i);
+  const kosher = getByLabelText(/do you want kosher food?/i);
+  const lactose = getByLabelText(/can you handle lactose?/i);
+  const other = getByLabelText(/inne:/i);
+  const input = findByPlaceholderText(
+    "Write anything we should know about your dietary restrictions"
+  );
+  expect(vegan).toBeInTheDocument();
+  expect(kosher).toBeInTheDocument();
+  expect(lactose).toBeInTheDocument();
+  expect(other).toBeInTheDocument();
+  userEvent.click(other);
+  await waitForElement(() => input).then(res =>
+    expect(res).toBeInTheDocument()
+  );
+});
+
+test("wish list label and add a thing button exists", () => {
+  const { getByText } = render(<App />);
+  const wishList = getByText(/things you wish to not forget:/i);
+  const addAThingButton = getByText(/add a thing/i);
+  expect(wishList).toBeInTheDocument();
+  expect(addAThingButton).toBeInTheDocument();
+});
+
+test("Reset and Submit buttons exists", () => {
+  const { getByText } = render(<App />);
+  const resetButton = getByText(/reset/i);
+  const submitButton = getByText("Submit");
+
+  expect(resetButton).toBeInTheDocument();
+  expect(submitButton).toBeInTheDocument();
+});
+
+//------------------- VALIDATION ---------------------------------------------------
+
 test("name input empty validation", async () => {
   const { getByPlaceholderText, container, findByTestId } = render(<App />);
   const inputName = getByPlaceholderText("Enter your name");
@@ -137,20 +189,42 @@ test("name input validation trigered by submit button", async () => {
   expect(validationErrors.innerHTML).toMatch("Required");
 });
 
-test("reset button is disabled by default", () => {
-  const { getByText } = render(<App />);
-  const submitBtn = getByText("Reset");
-  expect(submitBtn.disabled).toBe(true);
+test("last name input validation", async () => {
+  const { container, findByTestId, getByPlaceholderText, findByText } = render(
+    <App />
+  );
+  const input = getByPlaceholderText("Enter your last name");
+  expect(container.innerHTML).not.toMatch("Last Name is Required");
+  userEvent.click(input);
+  fireEvent.blur(input);
+  const validationError = await findByTestId("errors-lastName");
+  expect(validationError).toBeInTheDocument();
+  userEvent.type(input, "aa");
+  const validationMessage = await findByText(
+    "Nazwiska mają przynajmniej 5 znaków w jakmi świecie Ty zyjesz lel"
+  );
+  expect(validationMessage).toBeInTheDocument();
+  userEvent.type(input, "aaaaaa");
+  await wait(() => {
+    expect(container.innerHTML).not.toMatch(
+      "Nazwiska mają przynajmniej 5 znaków w jakmi świecie Ty zyjesz lel"
+    );
+    expect(container.innerHTML).not.toMatch("Last Name is Required");
+  });
 });
 
-test("reset button is not disabled when form is changed", () => {
-  const { getByText, getByPlaceholderText } = render(<App />);
-  const submitBtn = getByText("Reset");
-  const inputName = getByPlaceholderText("Enter your name");
-  expect(submitBtn.disabled).toBe(true);
-  // fireEvent.change(inputName, { target: { value: "aa" } });
-  userEvent.type(inputName, "aa");
-  expect(submitBtn.disabled).toBe(false);
+test("age input validation", async () => {
+  const { container, findAllByDisplayValue } = render(<App />);
+
+  const ageInput = await findAllByDisplayValue("0");
+  const age = ageInput[0];
+  fireEvent.focus(age);
+  fireEvent.blur(age);
+  await wait(() =>
+    expect(container.innerHTML).toMatch(
+      "niepelnoletnich na poklad nie wpuszczamy!!!"
+    )
+  );
 });
 
 test("submit click fires all validation msgs", async () => {
@@ -192,6 +266,24 @@ test("validation msgs disapear after loading data from server", async () => {
   });
   fireEvent.click(serverBtn);
   validationErrors.map(error => expect(error).not.toBeInTheDocument());
+});
+
+//------------------- END OF VALIDATION ---------------------------------------------------
+
+test("reset button is disabled by default", () => {
+  const { getByText } = render(<App />);
+  const submitBtn = getByText("Reset");
+  expect(submitBtn.disabled).toBe(true);
+});
+
+test("reset button is not disabled when form is changed", () => {
+  const { getByText, getByPlaceholderText } = render(<App />);
+  const submitBtn = getByText("Reset");
+  const inputName = getByPlaceholderText("Enter your name");
+  expect(submitBtn.disabled).toBe(true);
+  // fireEvent.change(inputName, { target: { value: "aa" } });
+  userEvent.type(inputName, "aa");
+  expect(submitBtn.disabled).toBe(false);
 });
 
 test("test select options on react-select", async () => {
@@ -250,4 +342,114 @@ test("test select all button", () => {
     getByText("Warsaw")
   ];
   destinations.map(destination => expect(destination).toBeInTheDocument());
+});
+
+test.only("age input min max values", async () => {
+  const {
+    getByDisplayValue,
+    getByTestId,
+    container,
+    findByDisplayValue,
+    findByText,
+    findByLabelText,
+    findAllByDisplayValue,
+    debug,
+    getByPlaceholderText,
+    findByTestId
+  } = render(<App />);
+
+  function __triggerKeyboardEvent(el, keyCode) {
+    var eventObj = document.createEventObject
+      ? document.createEventObject()
+      : document.createEvent("Events");
+
+    if (eventObj.initEvent) {
+      eventObj.initEvent("keydown", true, true);
+    }
+
+    eventObj.keyCode = keyCode;
+    eventObj.which = keyCode;
+
+    el.dispatchEvent
+      ? el.dispatchEvent(eventObj)
+      : el.fireEvent("onkeydown", eventObj);
+  }
+
+  function triggerKeyboardEvent(el, keyCode) {
+    var keyboardEvent = document.createEvent("KeyboardEvent");
+
+    var initMethod =
+      typeof keyboardEvent.initKeyboardEvent !== "undefined"
+        ? "initKeyboardEvent"
+        : "initKeyEvent";
+
+    keyboardEvent[initMethod](
+      "keydown",
+      true, // bubbles oOooOOo0
+      true, // cancelable
+      window, // view
+      false, // ctrlKeyArg
+      false, // altKeyArg
+      false, // shiftKeyArg
+      false, // metaKeyArg
+      keyCode,
+      0 // charCode
+    );
+
+    el.dispatchEvent(keyboardEvent);
+  }
+
+  const test = getByTestId("testnumber");
+  debug(test);
+  const event = new KeyboardEvent("keydown", {
+    key: "ArrowDown",
+    code: "ArrowDown",
+    keyCode: 40,
+    bubbles: true,
+    isTrusted: false
+  });
+  // container.parentNode.addEventListener("keydown", e => console.log(e));
+  test.addEventListener("keydown", e => console.log(e));
+  fireEvent.focus(test);
+  fireEvent.keyDown(test, {
+    key: "ArrowDown",
+    code: 40,
+    keyCode: 40,
+    which: 40
+  });
+  test.dispatchEvent(event);
+  __triggerKeyboardEvent(test, 40);
+  triggerKeyboardEvent(test, 40);
+  fireEvent.blur(test);
+  await wait(() => console.log(prettyDOM(getByTestId("testnumber"))));
+  // const ageInput = getByPlaceholderText("Enter you age");
+  // expect(ageInput.value).toBe("0");
+  // fireEvent.focus(ageInput);
+  // ageInput.addEventListener("keydown", e => console.log(e.keyCode));
+  // const event = new KeyboardEvent("keydown", { keyCode: 40, bubbles: true });
+  // // fireEvent.keyDown(ageInput, { key: "ArrowDown", code: 40, keyCode: 40 });
+  // // fireEvent.keyDown(ageInput, { key: "Down", code: 40, keyCode: 40 });
+  // // fireEvent.keyDown(ageInput, { key: "Down", code: 40 });
+  // // fireEvent.keyDown(ageInput, { key: "ArrowDown", code: 40 });
+  // // fireEvent.keyDown(ageInput, { key: "Enter", code: 13, keyCode: 13 });
+  // container.addEventListener("keydown", e =>
+  //   e.keyCode === 40 ? console.log("key down pressed") : null
+  // );
+
+  // ageInput.dispatchEvent(event);
+
+  // fireEvent.blur(ageInput);
+  // await wait(() => console.log(prettyDOM(container)));
+
+  // ageInput.addEventListener("keydown", e => console.log(e.key));
+  // fireEvent.focus(ageInput);
+  // fireEvent.keyDown(ageInput, { key: "ArrowUp", code: 38 });
+  // const sth = getByDisplayValue("");
+  // console.log(prettyDOM(ageInput));
+  // const validationMessage = await findByText("Wartość nie może być", {
+  //   exact: false
+  // });
+  // console.log(prettyDOM(validationMessage));
+
+  // console.log(prettyDOM(ageInput));
 });
