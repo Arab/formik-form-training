@@ -177,7 +177,7 @@ const MyForm = props => {
           name="gender"
           value="male"
           onChange={handleChange}
-          checked={values.gender === "male" ? true : false}
+          checked={values.gender === "male"}
         />
         <label htmlFor="male"> Male</label>
         <input
@@ -186,7 +186,7 @@ const MyForm = props => {
           name="gender"
           value="female"
           onChange={handleChange}
-          checked={values.gender === "female" ? true : false}
+          checked={values.gender === "female"}
         />
         <label htmlFor="female"> Female</label>
       </div>
@@ -250,7 +250,7 @@ const MyForm = props => {
         />
         <label htmlFor="other"> inne:</label>
         {values.dietaryRestrictions.other.isOther ? (
-          <React.Fragment>
+          <>
             <br />
             <br />
             <Field
@@ -274,7 +274,7 @@ const MyForm = props => {
                   {errors.other}
                 </div>
               )}
-          </React.Fragment>
+          </>
         ) : null}
         <ErrorMessage
           name="dietaryRestrictions"
@@ -330,7 +330,7 @@ const MyForm = props => {
                       ) : null
                     ) : null
                   ) : null}
-                </div>
+                </div> // tu wiesz
               ))
             ) : (
               <button type="button" onClick={() => arrayHelpers.push("")}>
@@ -350,7 +350,7 @@ const MyForm = props => {
           </div>
         ) : null
       ) : null}
-
+      {/* tu tez wiesz ^ */}
       <ErrorMessage
         name="todosEmpty"
         render={msg => (
@@ -400,13 +400,10 @@ const MyForm = props => {
 function CustomFormValidate(MyForm, props) {
   const { values, errors } = props;
   // console.log(props);
-  if (
-    values.todos.length > 0 &&
-    values.todos.reduce((prev, curr) => prev + curr) === ""
-  ) {
+  if (values.todos.length > 0 && !values.todos.some(item => item)) {
     errors.todosEmpty = "nie mozesz zostawic inputow pustych ;)";
   }
-  let newProps = { ...props, errors };
+  const newProps = { ...props, errors };
 
   return <MyForm {...newProps} />;
 }

@@ -6,13 +6,7 @@ import {
   fireEvent,
   cleanup,
   waitForElement,
-  prettyDOM,
-  wait,
-  waitForElementToBeRemoved,
-  queryByAltText,
-  getByDisplayValue,
-  findByText,
-  getByTestId
+  wait
 } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import selectEvent from "react-select-event";
@@ -93,7 +87,7 @@ test("select destination exists", () => {
 
 test("select all button exists", () => {
   const { getByText } = render(<App />);
-  const selectAllButton = getByText(/select all/i);
+  const selectAllButton = getByText(/^select all$/i);
   expect(selectAllButton).toBeInTheDocument();
 });
 
@@ -341,12 +335,26 @@ test("todos validation", async () => {
   });
 });
 
+test("todos inputs are not empty on submit", async () => {
+  const { findByTestId, getByText, getAllByText } = render(<App />);
+  const addAThingButton = getByText(/add a thing/i);
+  fireEvent.click(addAThingButton);
+  userEvent.click(getByText("+"));
+  userEvent.click(getAllByText("+")[0]);
+  const submitBtn = getByText("Submit");
+  fireEvent.click(submitBtn);
+  await waitForElement(() => findByTestId("errors-todosEmpty")).then(res => {
+    expect(res).toBeInTheDocument();
+    expect(res.innerHTML).toBe("nie mozesz zostawic inputow pustych ;)");
+  });
+});
+
 test("submit click fires all validation msgs", async () => {
   const { container, findByTestId, getByText } = render(<App />);
   const submitBtn = getByText("Submit");
   expect(container.innerHTML).not.toMatch("Required");
   fireEvent.click(submitBtn);
-  const validationErrors = await [
+  await Promise.all([
     findByTestId("errors-firstName"),
     findByTestId("errors-lastName"),
     findByTestId("errors-age"),
@@ -354,9 +362,8 @@ test("submit click fires all validation msgs", async () => {
     findByTestId("errors-destination"),
     findByTestId("errors-dietaryRestrictions"),
     findByTestId("errors-todo")
-  ];
-  await wait(() => {
-    validationErrors.map(error => expect(error.innerHTML).not.toBeNull());
+  ]).then(errors => {
+    errors.map(error => expect(error).toBeInTheDocument());
   });
 });
 
