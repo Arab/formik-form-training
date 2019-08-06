@@ -39,8 +39,8 @@ test("last name input exists", () => {
 });
 
 test("age input exists", () => {
-  const { getByDisplayValue } = render(<App />);
-  const input = getByDisplayValue("0");
+  const { getByPlaceholderText } = render(<App />);
+  const input = getByPlaceholderText("Enter your age");
   expect(input).toBeInTheDocument();
 });
 
@@ -214,17 +214,131 @@ test("last name input validation", async () => {
 });
 
 test("age input validation", async () => {
-  const { container, findAllByDisplayValue } = render(<App />);
-
-  const ageInput = await findAllByDisplayValue("0");
-  const age = ageInput[0];
-  fireEvent.focus(age);
-  fireEvent.blur(age);
-  await wait(() =>
-    expect(container.innerHTML).toMatch(
-      "niepelnoletnich na poklad nie wpuszczamy!!!"
-    )
+  const { getByPlaceholderText, findByTestId } = render(<App />);
+  const ageInput = getByPlaceholderText("Enter your age");
+  fireEvent.focus(ageInput);
+  fireEvent.blur(ageInput);
+  await waitForElement(() => findByTestId("errors-age")).then(res =>
+    expect(res).toBeInTheDocument()
   );
+});
+
+test("phone number validation", async () => {
+  const { getByLabelText, findByTestId } = render(<App />);
+  const phoneNumberInput = getByLabelText(/phone number/i);
+  expect(phoneNumberInput).toBeInTheDocument();
+  expect(phoneNumberInput.value).toBe("+48 ");
+  const typeVal = phoneNumberInput.value + "6005001";
+  userEvent.type(phoneNumberInput, typeVal);
+  fireEvent.blur(phoneNumberInput);
+  await waitForElement(() => findByTestId("errors-phoneNumber")).then(res =>
+    expect(res).toBeInTheDocument()
+  );
+});
+
+test("dietary restriction validation", async () => {
+  const {
+    getByLabelText,
+    findByTestId,
+    findByPlaceholderText,
+    getByTestId
+  } = render(<App />);
+
+  const vegan = getByLabelText(/are you vegan?/i);
+  const kosher = getByLabelText(/do you want kosher food?/i);
+  const lactose = getByLabelText(/can you handle lactose?/i);
+  const other = getByLabelText(/inne:/i);
+
+  userEvent.click(vegan);
+  userEvent.click(vegan);
+  fireEvent.blur(vegan);
+  await waitForElement(() => findByTestId("errors-dietaryRestrictions")).then(
+    res => expect(res).toBeInTheDocument()
+  );
+  userEvent.click(kosher);
+  userEvent.click(kosher);
+  fireEvent.blur(kosher);
+  await waitForElement(() => findByTestId("errors-dietaryRestrictions")).then(
+    res => expect(res).toBeInTheDocument()
+  );
+  userEvent.click(lactose);
+  userEvent.click(lactose);
+  fireEvent.blur(lactose);
+  await waitForElement(() => findByTestId("errors-dietaryRestrictions")).then(
+    res => expect(res).toBeInTheDocument()
+  );
+  userEvent.click(other);
+  const input = findByPlaceholderText(
+    "Write anything we should know about your dietary restrictions"
+  );
+  await waitForElement(() => input).then(res => {
+    fireEvent.blur(res);
+    expect(getByTestId("errors-other-value")).toBeInTheDocument();
+  });
+  userEvent.click(other);
+  fireEvent.blur(other);
+  await waitForElement(() => findByTestId("errors-dietaryRestrictions")).then(
+    res => expect(res).toBeInTheDocument()
+  );
+});
+
+test("todos validation", async () => {
+  const { findByTestId, getByText, findByText, getAllByText } = render(<App />);
+  const addAThingButton = getByText(/add a thing/i);
+  fireEvent.click(addAThingButton);
+  await waitForElement(() => findByText("-")).then(res => {
+    fireEvent.click(res);
+  });
+  await waitForElement(() => findByTestId("errors-todo"))
+    .then(res => {
+      expect(res).toBeInTheDocument();
+      expect(res.innerHTML).toBe("you need to add at least 1 thing");
+    })
+    .then(() => fireEvent.click(getByText(/add a thing/i)));
+  await waitForElement(() => findByText("-"))
+    .then(res => res.parentNode.getElementsByTagName("input")[0])
+    .then(input => {
+      userEvent.type(input, "cebula");
+      fireEvent.blur(input);
+    });
+  await waitForElement(() => findByTestId("errors-todos-0")).then(res => {
+    expect(res).toBeInTheDocument();
+    expect(res.innerHTML).toBe(
+      "No chyba nie bedziesz bral w pierwszej kolejnosci cebuli ;)"
+    );
+  });
+  userEvent.click(getByText("+"));
+  const secondPlusButton = getAllByText("+")[1];
+  const secondInput = secondPlusButton.parentNode.getElementsByTagName(
+    "input"
+  )[0];
+  userEvent.type(secondInput, "cebula");
+  fireEvent.blur(secondInput);
+  await waitForElement(() => findByTestId("errors-todos-1")).then(res => {
+    expect(res).toBeInTheDocument();
+    expect(res.innerHTML).toBe("w ogole nie zabieraj cebuli na poklad");
+  });
+  fireEvent.click(secondPlusButton);
+  const thirdPlusButton = getAllByText("+")[2];
+  const thirdInput = thirdPlusButton.parentNode.getElementsByTagName(
+    "input"
+  )[0];
+  userEvent.type(thirdInput, "cebula");
+  fireEvent.blur(thirdInput);
+  await waitForElement(() => findByTestId("errors-todos-2")).then(res => {
+    expect(res).toBeInTheDocument();
+    expect(res.innerHTML).toBe("w ogole nie zabieraj cebuli na poklad");
+  });
+  fireEvent.click(thirdPlusButton);
+  const fourthPlusButton = getAllByText("+")[3];
+  const fourthInput = fourthPlusButton.parentNode.getElementsByTagName(
+    "input"
+  )[0];
+  expect(fourthInput.disabled).toBe(true);
+  await waitForElement(() => findByTestId("errors-todo")).then(res => {
+    expect(res).toBeInTheDocument();
+    expect(res.innerHTML).toBe("you can to add max 3 things");
+  });
 });
 
 test("submit click fires all validation msgs", async () => {
@@ -342,114 +456,4 @@ test("test select all button", () => {
     getByText("Warsaw")
   ];
   destinations.map(destination => expect(destination).toBeInTheDocument());
-});
-
-test.only("age input min max values", async () => {
-  const {
-    getByDisplayValue,
-    getByTestId,
-    container,
-    findByDisplayValue,
-    findByText,
-    findByLabelText,
-    findAllByDisplayValue,
-    debug,
-    getByPlaceholderText,
-    findByTestId
-  } = render(<App />);
-
-  function __triggerKeyboardEvent(el, keyCode) {
-    var eventObj = document.createEventObject
-      ? document.createEventObject()
-      : document.createEvent("Events");
-
-    if (eventObj.initEvent) {
-      eventObj.initEvent("keydown", true, true);
-    }
-
-    eventObj.keyCode = keyCode;
-    eventObj.which = keyCode;
-
-    el.dispatchEvent
-      ? el.dispatchEvent(eventObj)
-      : el.fireEvent("onkeydown", eventObj);
-  }
-
-  function triggerKeyboardEvent(el, keyCode) {
-    var keyboardEvent = document.createEvent("KeyboardEvent");
-
-    var initMethod =
-      typeof keyboardEvent.initKeyboardEvent !== "undefined"
-        ? "initKeyboardEvent"
-        : "initKeyEvent";
-
-    keyboardEvent[initMethod](
-      "keydown",
-      true, // bubbles oOooOOo0
-      true, // cancelable
-      window, // view
-      false, // ctrlKeyArg
-      false, // altKeyArg
-      false, // shiftKeyArg
-      false, // metaKeyArg
-      keyCode,
-      0 // charCode
-    );
-
-    el.dispatchEvent(keyboardEvent);
-  }
-
-  const test = getByTestId("testnumber");
-  debug(test);
-  const event = new KeyboardEvent("keydown", {
-    key: "ArrowDown",
-    code: "ArrowDown",
-    keyCode: 40,
-    bubbles: true,
-    isTrusted: false
-  });
-  // container.parentNode.addEventListener("keydown", e => console.log(e));
-  test.addEventListener("keydown", e => console.log(e));
-  fireEvent.focus(test);
-  fireEvent.keyDown(test, {
-    key: "ArrowDown",
-    code: 40,
-    keyCode: 40,
-    which: 40
-  });
-  test.dispatchEvent(event);
-  __triggerKeyboardEvent(test, 40);
-  triggerKeyboardEvent(test, 40);
-  fireEvent.blur(test);
-  await wait(() => console.log(prettyDOM(getByTestId("testnumber"))));
-  // const ageInput = getByPlaceholderText("Enter you age");
-  // expect(ageInput.value).toBe("0");
-  // fireEvent.focus(ageInput);
-  // ageInput.addEventListener("keydown", e => console.log(e.keyCode));
-  // const event = new KeyboardEvent("keydown", { keyCode: 40, bubbles: true });
-  // // fireEvent.keyDown(ageInput, { key: "ArrowDown", code: 40, keyCode: 40 });
-  // // fireEvent.keyDown(ageInput, { key: "Down", code: 40, keyCode: 40 });
-  // // fireEvent.keyDown(ageInput, { key: "Down", code: 40 });
-  // // fireEvent.keyDown(ageInput, { key: "ArrowDown", code: 40 });
-  // // fireEvent.keyDown(ageInput, { key: "Enter", code: 13, keyCode: 13 });
-  // container.addEventListener("keydown", e =>
-  //   e.keyCode === 40 ? console.log("key down pressed") : null
-  // );
-
-  // ageInput.dispatchEvent(event);
-
-  // fireEvent.blur(ageInput);
-  // await wait(() => console.log(prettyDOM(container)));
-
-  // ageInput.addEventListener("keydown", e => console.log(e.key));
-  // fireEvent.focus(ageInput);
-  // fireEvent.keyDown(ageInput, { key: "ArrowUp", code: 38 });
-  // const sth = getByDisplayValue("");
-  // console.log(prettyDOM(ageInput));
-  // const validationMessage = await findByText("Wartość nie może być", {
-  //   exact: false
-  // });
-  // console.log(prettyDOM(validationMessage));
-
-  // console.log(prettyDOM(ageInput));
 });
