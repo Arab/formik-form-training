@@ -19,6 +19,10 @@ it("renders without crashing", () => {
   ReactDOM.render(<App />, div);
   ReactDOM.unmountComponentAtNode(div);
 });
+test("snapshot of app", () => {
+  const { container } = render(<App />);
+  expect(container).toMatchSnapshot();
+});
 
 test("name input exists", () => {
   const { getByPlaceholderText } = render(<App />);
