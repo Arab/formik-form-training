@@ -291,9 +291,6 @@ exports[`snapshot of app 1`] = `
     <button>
       CLICK ME IM SERVER
     </button>
-    <button>
-      Im state values
-    </button>
   </div>
 </div>
 `;

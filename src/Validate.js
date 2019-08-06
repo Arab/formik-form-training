@@ -51,13 +51,16 @@ const Validate = values => {
     errors.todo = "you can to add max 3 things";
   }
   if (values.todos.length > 0) {
-    errors.todos = values.todos.map(todo =>
-      todo === "cebula" ? "w ogole nie zabieraj cebuli na poklad" : null
-    );
-  }
-  if (values.todos.length > 0 && values.todos[0] === "cebula") {
-    errors.todos[0] =
-      "No chyba nie bedziesz bral w pierwszej kolejnosci cebuli ;)";
+    values.todos.map((todo, index) => {
+      if (todo === "cebula" && index === 0) {
+        errors.todos = [];
+        errors.todos[index] =
+          "No chyba nie bedziesz bral w pierwszej kolejnosci cebuli ;)";
+      } else if (todo === "cebula" && index > 0) {
+        errors.todos[index] = "w ogole nie zabieraj cebuli na poklad";
+      }
+      return null;
+    });
   }
 
   return errors;

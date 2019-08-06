@@ -1,8 +1,10 @@
 import React from "react";
 import { DisplayFormikState } from "./helper";
-import { Form, Field, ErrorMessage, FieldArray } from "formik";
+import { Form, Field, FieldArray } from "formik";
+import { makeFriendlyObjects } from "./MakeFriendlyObjects";
 import MySelect from "./MySelect";
 import PhoneInput from "./PhoneInput";
+import MyErrorMessage from "./MyErrorMessage";
 
 const MyForm = props => {
   const {
@@ -16,6 +18,16 @@ const MyForm = props => {
     handleBlur,
     isSubmitting
   } = props;
+  const {
+    gender,
+    vegan,
+    kosher,
+    lactose,
+    other,
+    otherInput,
+    todos
+  } = makeFriendlyObjects(values, touched, errors);
+
   return (
     <Form>
       <Field
@@ -24,42 +36,21 @@ const MyForm = props => {
         placeholder="Enter your name"
         className="input"
       />
-      <ErrorMessage
-        name="firstName"
-        render={msg => (
-          <div data-testid="errors-firstName" className="error">
-            {msg}
-          </div>
-        )}
-      />
+      <MyErrorMessage dataTestId="errors-firstName" name="firstName" />
       <Field
         type="text"
         name="lastName"
         placeholder="Enter your last name"
         className="input"
       />
-      <ErrorMessage
-        name="lastName"
-        render={msg => (
-          <div data-testid="errors-lastName" className="error">
-            {msg}
-          </div>
-        )}
-      />
+      <MyErrorMessage dataTestId="errors-lastName" name="lastName" />
       <Field
         type="number"
         name="age"
         placeholder="Enter your age"
         className="input"
       />
-      <ErrorMessage
-        name="age"
-        render={msg => (
-          <div data-testid="errors-age" className="error">
-            {msg}
-          </div>
-        )}
-      />
+      <MyErrorMessage dataTestId="errors-age" name="age" />
       <div className="gender-wrapper">
         <input
           id="male"
@@ -67,7 +58,7 @@ const MyForm = props => {
           name="gender"
           value="male"
           onChange={handleChange}
-          checked={values.gender === "male"}
+          checked={gender.value === "male"}
         />
         <label htmlFor="male"> Male</label>
         <input
@@ -76,29 +67,13 @@ const MyForm = props => {
           name="gender"
           value="female"
           onChange={handleChange}
-          checked={values.gender === "female"}
+          checked={gender.value === "female"}
         />
         <label htmlFor="female"> Female</label>
       </div>
-
-      <ErrorMessage
-        name="gender"
-        render={msg => (
-          <div data-testid="errors-gender" className="error">
-            {msg}
-          </div>
-        )}
-      />
+      <MyErrorMessage dataTestId="errors-gender" name="gender" />
       <Field name="phoneNumber" component={PhoneInput} />
-      <ErrorMessage
-        name="phoneNumber"
-        render={msg => (
-          <div data-testid="errors-phoneNumber" className="error">
-            {msg}
-          </div>
-        )}
-      />
-
+      <MyErrorMessage dataTestId="errors-phoneNumber" name="phoneNumber" />
       <MySelect
         value={values.destination}
         onChange={setFieldValue}
@@ -106,13 +81,12 @@ const MyForm = props => {
         error={errors.destination}
         touched={touched.destination}
       />
-
       <div className="dietary-restrictions-wrapper">
         <Field
           id="isVegan"
           type="checkbox"
           name="dietaryRestrictions.isVegan"
-          checked={values.dietaryRestrictions.isVegan}
+          checked={vegan.value}
         />
         <label htmlFor="isVegan"> Are you vegan?</label>
         <br />
@@ -120,7 +94,7 @@ const MyForm = props => {
           id="isKosher"
           type="checkbox"
           name="dietaryRestrictions.isKosher"
-          checked={values.dietaryRestrictions.isKosher}
+          checked={kosher.value}
         />
         <label htmlFor="isKosher"> Do you want kosher food?</label>
         <br />
@@ -128,7 +102,7 @@ const MyForm = props => {
           id="isLactoseFree"
           type="checkbox"
           name="dietaryRestrictions.isLactoseFree"
-          checked={values.dietaryRestrictions.isLactoseFree}
+          checked={lactose.value}
         />
         <label htmlFor="isLactoseFree"> Can you handle Lactose?</label>
         <br />
@@ -136,10 +110,10 @@ const MyForm = props => {
           id="other"
           type="checkbox"
           name="dietaryRestrictions.other.isOther"
-          checked={values.dietaryRestrictions.other.isOther}
+          checked={other.value}
         />
         <label htmlFor="other"> inne:</label>
-        {values.dietaryRestrictions.other.isOther ? (
+        {other.value && (
           <>
             <br />
             <br />
@@ -149,30 +123,19 @@ const MyForm = props => {
               name="dietaryRestrictions.other.value"
               placeholder="Write anything we should know about your dietary restrictions"
             />
-            {!!errors.other &&
-              (touched
-                ? touched.dietaryRestrictions
-                  ? touched.dietaryRestrictions.other
-                    ? touched.dietaryRestrictions.other.value
-                    : false
-                  : false
-                : false) && (
-                <div
-                  data-testid="errors-other-value"
-                  style={{ color: "red", marginTop: ".5rem" }}
-                >
-                  {errors.other}
-                </div>
-              )}
+            {otherInput.error && otherInput.touched && (
+              <div
+                data-testid="errors-other-value"
+                style={{ color: "red", marginTop: ".5rem" }}
+              >
+                {otherInput.error}
+              </div>
+            )}
           </>
-        ) : null}
-        <ErrorMessage
+        )}
+        <MyErrorMessage
+          dataTestId="errors-dietaryRestrictions"
           name="dietaryRestrictions"
-          render={msg => (
-            <div data-testid="errors-dietaryRestrictions" className="error">
-              {msg}
-            </div>
-          )}
         />
       </div>
       <div className="todosLabel">Things you wish to not forget:</div>
@@ -180,8 +143,8 @@ const MyForm = props => {
         name="todos"
         render={arrayHelpers => (
           <div>
-            {values.todos && values.todos.length > 0 ? (
-              values.todos.map((todo, index) => (
+            {todos && todos.length > 0 ? (
+              todos.map((todo, index) => (
                 <div key={index}>
                   {index > 2 ? (
                     <Field
@@ -208,19 +171,15 @@ const MyForm = props => {
                   >
                     +
                   </button>
-                  {errors && touched ? (
-                    errors.todos && touched.todos ? (
-                      errors.todos[index] && touched.todos[index] ? (
-                        <div
-                          data-testid={`errors-todos-${index}`}
-                          style={{ color: "red", marginTop: ".5rem" }}
-                        >
-                          {errors.todos[index]}
-                        </div>
-                      ) : null
-                    ) : null
-                  ) : null}
-                </div> // tu wiesz
+                  {todo.error && todo.touched && (
+                    <div
+                      data-testid={`errors-todos-${index}`}
+                      style={{ color: "red", marginTop: ".5rem" }}
+                    >
+                      {todo.error}
+                    </div>
+                  )}
+                </div> // tu wiesz  ---no wiem chyba ale sprawdz
               ))
             ) : (
               <button type="button" onClick={() => arrayHelpers.push("")}>
@@ -230,25 +189,16 @@ const MyForm = props => {
           </div>
         )}
       />
-      {errors && touched ? (
-        errors.todo && touched.todos ? (
-          <div
-            data-testid="errors-todo"
-            style={{ color: "red", marginTop: ".5rem" }}
-          >
-            {errors.todo}
-          </div>
-        ) : null
-      ) : null}
+      {errors.todo && touched.todos && (
+        <div
+          data-testid="errors-todo"
+          style={{ color: "red", marginTop: ".5rem" }}
+        >
+          {errors.todo}
+        </div>
+      )}
       {/* tu tez wiesz ^ */}
-      <ErrorMessage
-        name="todosEmpty"
-        render={msg => (
-          <div data-testid="errors-todosEmpty" className="error">
-            {msg}
-          </div>
-        )}
-      />
+      <MyErrorMessage dataTestId="errors-todosEmpty" name="todosEmpty" />
       <button
         type="button"
         className="outline"
@@ -262,27 +212,6 @@ const MyForm = props => {
       </button>
 
       <DisplayFormikState {...props} />
-      {/* <input
-          type="number"
-          data-testid="test1"
-          onChange={e => {
-            e.persist();
-            console.log(e);
-          }}
-          onInput={e => {
-            e.persist();
-            console.log(e);
-          }}
-          onKeyDown={e => {
-            e.persist();
-            console.log(e);
-          }}
-          onKeyUp={e => {
-            e.persist();
-            console.log(e);
-          }}
-          value="0"
-        /> */}
     </Form>
   );
 };
