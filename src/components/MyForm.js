@@ -1,9 +1,9 @@
 import React from "react";
-import { DisplayFormikState } from "./helper";
+import { DisplayFormikState } from "../helpers/helper";
 import { Form, Field, FieldArray } from "formik";
-import { makeFriendlyObjects } from "./MakeFriendlyObjects";
+import { makeFriendlyObjects } from "../helpers/MakeFriendlyObjects";
 import MySelect from "./MySelect";
-import PhoneInput from "./PhoneInput";
+import PhoneInput from "../containers/PhoneInput";
 import MyErrorMessage from "./MyErrorMessage";
 import Todos from "./Todos";
 import CustomErrorMessage from "./CustomErrorMessage";

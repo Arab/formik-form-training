@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { Formik } from "formik";
-import { validate } from "./Validate";
-import { blankValues, fetchedInitialValues } from "./Values";
-import CustomFormValidate from "./CustomFormValidate";
+import { validate } from "../components/Validate";
+import { blankValues, fetchedInitialValues } from "../data/Values";
+import CustomFormValidate from "../components/CustomFormValidate";
 import "./App.css";
 
 function App() {

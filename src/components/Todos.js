@@ -1,5 +1,5 @@
 import React from "react";
-import { makeFriendlyObjects } from "./MakeFriendlyObjects";
+import { makeFriendlyObjects } from "../helpers/MakeFriendlyObjects";
 import CustomField from "./CustomField";
 import CustomErrorMessage from "./CustomErrorMessage";
 
