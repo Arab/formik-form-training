@@ -112,3 +112,10 @@ button.outline {
   font-size: 24px;
   font-style: bold;
 }
+.other__input {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.dietaryRestriction__label {
+  margin-bottom: 1rem;
+}

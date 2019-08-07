@@ -1,16 +1,14 @@
 import React from "react";
 import { ErrorMessage } from "formik";
+import CustomErrorMessage from "./CustomErrorMessage";
 
 const MyErrorMessage = props => {
   const { dataTestId, name } = props;
   return (
     <ErrorMessage
       name={name}
-      render={msg => (
-        <div data-testid={dataTestId} className="error">
-          {msg}
-        </div>
-      )}
+      dataTestId={dataTestId}
+      component={CustomErrorMessage}
     />
   );
 };

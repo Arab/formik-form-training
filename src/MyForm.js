@@ -5,6 +5,8 @@ import { makeFriendlyObjects } from "./MakeFriendlyObjects";
 import MySelect from "./MySelect";
 import PhoneInput from "./PhoneInput";
 import MyErrorMessage from "./MyErrorMessage";
+import Todos from "./Todos";
+import CustomErrorMessage from "./CustomErrorMessage";
 
 const MyForm = props => {
   const {
@@ -24,8 +26,7 @@ const MyForm = props => {
     kosher,
     lactose,
     other,
-    otherInput,
-    todos
+    otherInput
   } = makeFriendlyObjects(values, touched, errors);
 
   return (
@@ -82,134 +83,98 @@ const MyForm = props => {
         touched={touched.destination}
       />
       <div className="dietary-restrictions-wrapper">
-        <Field
-          id="isVegan"
-          type="checkbox"
-          name="dietaryRestrictions.isVegan"
-          checked={vegan.value}
-        />
-        <label htmlFor="isVegan"> Are you vegan?</label>
-        <br />
-        <Field
-          id="isKosher"
-          type="checkbox"
-          name="dietaryRestrictions.isKosher"
-          checked={kosher.value}
-        />
-        <label htmlFor="isKosher"> Do you want kosher food?</label>
-        <br />
-        <Field
-          id="isLactoseFree"
-          type="checkbox"
-          name="dietaryRestrictions.isLactoseFree"
-          checked={lactose.value}
-        />
-        <label htmlFor="isLactoseFree"> Can you handle Lactose?</label>
-        <br />
-        <Field
-          id="other"
-          type="checkbox"
-          name="dietaryRestrictions.other.isOther"
-          checked={other.value}
-        />
-        <label htmlFor="other"> inne:</label>
-        {other.value && (
-          <>
-            <br />
-            <br />
-            <Field
-              className="other"
-              type="text"
-              name="dietaryRestrictions.other.value"
-              placeholder="Write anything we should know about your dietary restrictions"
-            />
-            {otherInput.error && otherInput.touched && (
-              <div
-                data-testid="errors-other-value"
-                style={{ color: "red", marginTop: ".5rem" }}
-              >
-                {otherInput.error}
-              </div>
-            )}
-          </>
-        )}
+        <div>
+          <Field
+            id="isVegan"
+            type="checkbox"
+            name="dietaryRestrictions.isVegan"
+            checked={vegan.value}
+          />
+          <label className="dietaryRestriction__label" htmlFor="isVegan">
+            {" "}
+            Are you vegan?
+          </label>
+        </div>
+        <div>
+          <Field
+            id="isKosher"
+            type="checkbox"
+            name="dietaryRestrictions.isKosher"
+            checked={kosher.value}
+          />
+          <label className="dietaryRestriction__label" htmlFor="isKosher">
+            {" "}
+            Do you want kosher food?
+          </label>
+        </div>
+        <div>
+          <Field
+            id="isLactoseFree"
+            type="checkbox"
+            name="dietaryRestrictions.isLactoseFree"
+            checked={lactose.value}
+          />
+          <label className="dietaryRestriction__label" htmlFor="isLactoseFree">
+            {" "}
+            Can you handle Lactose?
+          </label>
+        </div>
+        <div>
+          <Field
+            id="other"
+            type="checkbox"
+            name="dietaryRestrictions.other.isOther"
+            checked={other.value}
+          />
+          <label className="dietaryRestriction__label" htmlFor="other">
+            {" "}
+            inne:
+          </label>
+        </div>
+        <div>
+          {other.value && (
+            <div className="other__input">
+              <Field
+                className="other"
+                type="text"
+                name="dietaryRestrictions.other.value"
+                placeholder="Write anything we should know about your dietary restrictions"
+              />
+              {otherInput.error && otherInput.touched && (
+                <CustomErrorMessage
+                  children={otherInput.error}
+                  dataTestId="errors-other-value"
+                />
+              )}
+            </div>
+          )}
+        </div>
         <MyErrorMessage
           dataTestId="errors-dietaryRestrictions"
           name="dietaryRestrictions"
         />
       </div>
-      <div className="todosLabel">Things you wish to not forget:</div>
-      <FieldArray
-        name="todos"
-        render={arrayHelpers => (
-          <div>
-            {todos && todos.length > 0 ? (
-              todos.map((todo, index) => (
-                <div key={index}>
-                  {index > 2 ? (
-                    <Field
-                      name={`todos.${index}`}
-                      style={{
-                        width: "300px",
-                        backgroundColor: "lightgray"
-                      }}
-                      placeholder="no no no look down!"
-                      disabled
-                    />
-                  ) : (
-                    <Field style={{ width: "300px" }} name={`todos.${index}`} />
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => arrayHelpers.remove(index)}
-                  >
-                    -
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => arrayHelpers.insert(index + 1, "")}
-                  >
-                    +
-                  </button>
-                  {todo.error && todo.touched && (
-                    <div
-                      data-testid={`errors-todos-${index}`}
-                      style={{ color: "red", marginTop: ".5rem" }}
-                    >
-                      {todo.error}
-                    </div>
-                  )}
-                </div> // tu wiesz  ---no wiem chyba ale sprawdz
-              ))
-            ) : (
-              <button type="button" onClick={() => arrayHelpers.push("")}>
-                Add a thing
-              </button>
-            )}
-          </div>
+      <div>
+        <div className="todosLabel">Things you wish to not forget:</div>
+        <FieldArray name="todos" component={Todos} />
+        {errors.todo && touched.todos && (
+          <CustomErrorMessage children={errors.todo} dataTestId="errors-todo" />
         )}
-      />
-      {errors.todo && touched.todos && (
-        <div
-          data-testid="errors-todo"
-          style={{ color: "red", marginTop: ".5rem" }}
-        >
-          {errors.todo}
-        </div>
-      )}
-      {/* tu tez wiesz ^ */}
+      </div>
       <MyErrorMessage dataTestId="errors-todosEmpty" name="todosEmpty" />
-      <button
-        type="button"
-        className="outline"
-        onClick={handleReset}
-        disabled={!dirty || isSubmitting}
-      >
-        Reset
-      </button>
-      <button type="submit" disabled={isSubmitting}>
-        Submit
-      </button>
+      <div>
+        <button
+          type="button"
+          className="outline"
+          onClick={handleReset}
+          disabled={!dirty || isSubmitting}
+        >
+          Reset
+        </button>
+        <button type="submit" disabled={isSubmitting}>
+          Submit
+        </button>
+      </div>
 
       <DisplayFormikState {...props} />
     </Form>

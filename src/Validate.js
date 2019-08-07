@@ -57,7 +57,12 @@ const Validate = values => {
         errors.todos[index] =
           "No chyba nie bedziesz bral w pierwszej kolejnosci cebuli ;)";
       } else if (todo === "cebula" && index > 0) {
-        errors.todos[index] = "w ogole nie zabieraj cebuli na poklad";
+        if (errors.todos) {
+          errors.todos[index] = "w ogole nie zabieraj cebuli na poklad";
+        } else {
+          errors.todos = [];
+          errors.todos[index] = "w ogole nie zabieraj cebuli na poklad";
+        }
       }
       return null;
     });
