@@ -1,6 +1,7 @@
 import React from "react";
 import { makeFriendlyObjects } from "./MakeFriendlyObjects";
 import CustomField from "./CustomField";
+import CustomErrorMessage from "./CustomErrorMessage";
 
 const Todos = props => {
   const { remove, insert, push } = props;
@@ -34,12 +35,10 @@ const Todos = props => {
               +
             </button>
             {todo.error && todo.touched && (
-              <div
-                data-testid={`errors-todos-${index}`}
-                style={{ color: "red", marginTop: ".5rem" }}
-              >
-                {todo.error}
-              </div>
+              <CustomErrorMessage
+                children={todo.error}
+                dataTestId={`errors-todos-${index}`}
+              />
             )}
           </div>
         ))

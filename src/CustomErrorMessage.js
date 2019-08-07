@@ -1,10 +1,8 @@
 import React from "react";
-const CustomErrorMessage = props => {
-  const { dataTestId, children } = props;
-  return (
-    <div data-testid={dataTestId} className="error">
-      {children}
-    </div>
-  );
-};
+const CustomErrorMessage = ({ dataTestId, children }) => (
+  <div data-testid={dataTestId} className="error">
+    {children}
+  </div>
+);
+
 export default CustomErrorMessage;

@@ -119,3 +119,7 @@ button.outline {
 .dietaryRestriction__label {
   margin-bottom: 1rem;
 }
+.myselect__error {
+  margin-top: 1rem;
+  margin-bottom: -1rem;
+}

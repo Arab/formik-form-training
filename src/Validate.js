@@ -1,4 +1,4 @@
-const Validate = values => {
+const validate = values => {
   let errors = {};
   //first name validation
   if (values.gender === "") {
@@ -71,4 +71,4 @@ const Validate = values => {
   return errors;
 };
 
-export default Validate;
+export { validate };

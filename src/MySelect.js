@@ -1,5 +1,6 @@
 import React from "react";
 import Select from "react-select";
+import CustomErrorMessage from "./CustomErrorMessage";
 
 const options = [
   { value: "paris", label: "Paris" },
@@ -9,51 +10,45 @@ const options = [
   { value: "warsaw", label: "Warsaw" }
 ];
 
-class MySelect extends React.Component {
-  handleChange = value => {
-    this.props.onChange("destination", value);
+const MySelect = ({ error, value, touched, onBlur, onChange }) => {
+  const handleChange = value => {
+    onChange("destination", value);
   };
 
-  handleBlur = () => {
-    this.props.onBlur();
+  const handleBlur = () => {
+    onBlur();
   };
-  handleMySelectAll = () => {
-    this.props.onChange("destination", options);
+  const handleMySelectAll = () => {
+    onChange("destination", options);
   };
-  render() {
-    return (
-      <React.Fragment>
-        <div style={{ margin: "1rem 0" }}>
-          <label htmlFor="color">Select your destination </label>
-          <Select
-            id="color"
-            options={options}
-            isMulti
-            onChange={this.handleChange}
-            onBlur={this.handleBlur}
-            value={this.props.value}
-          />
-          {!!this.props.error && this.props.touched && (
-            <div
-              data-testid="errors-destination"
-              style={{ color: "red", marginTop: ".5rem" }}
-            >
-              {this.props.error}
-            </div>
-          )}
-        </div>
-        <div style={{ margin: "1rem 0" }}>
-          <button
-            type="button"
-            onClick={this.handleMySelectAll}
-            onBlur={() => null}
-          >
-            Select All
-          </button>
-        </div>
-      </React.Fragment>
-    );
-  }
-}
+  return (
+    <>
+      <div style={{ margin: "1rem 0" }}>
+        <label htmlFor="color">Select your destination </label>
+        <Select
+          id="color"
+          options={options}
+          isMulti
+          onChange={handleChange}
+          onBlur={handleBlur}
+          value={value}
+        />
+        {!!error && touched && (
+          <div className="myselect__error">
+            <CustomErrorMessage
+              children={error}
+              dataTestId="errors-destination"
+            />
+          </div>
+        )}
+      </div>
+      <div style={{ margin: "1rem 0" }}>
+        <button type="button" onClick={handleMySelectAll}>
+          Select All
+        </button>
+      </div>
+    </>
+  );
+};
 
 export default MySelect;

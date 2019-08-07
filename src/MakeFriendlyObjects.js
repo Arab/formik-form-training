@@ -21,12 +21,6 @@ export function makeFriendlyObjects(values, touched, errors) {
     touched: touched.gender,
     error: errors.gender
   };
-  const destination = values.destination.map(dest => ({
-    value: dest.value,
-    label: dest.label,
-    touched: touched.destination,
-    error: errors.destination
-  }));
   const vegan = {
     value: get(values, "dietaryRestrictions.isVegan"),
     touched: get(touched, "dietaryRestrictions.isVegan"),
@@ -62,7 +56,6 @@ export function makeFriendlyObjects(values, touched, errors) {
     lastName,
     age,
     gender,
-    destination,
     vegan,
     kosher,
     lactose,

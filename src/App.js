@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Formik } from "formik";
-import Validate from "./Validate";
+import { validate } from "./Validate";
 import { blankValues, fetchedInitialValues } from "./Values";
 import CustomFormValidate from "./CustomFormValidate";
 import "./App.css";
@@ -11,20 +11,20 @@ function App() {
   const fetchInitialValues = () => {
     setInitialValues({ ...fetchedInitialValues });
   };
-
+  const handleSubmit = (values, actions) => {
+    setTimeout(() => {
+      alert(JSON.stringify(values, null, 2));
+      actions.setSubmitting(false);
+    }, 500);
+  };
   return (
     <div className="app">
       <h1>My First Formik Form </h1>
       <Formik
         fetchInitialValues={fetchInitialValues}
         initialValues={initialValues}
-        validate={Validate}
-        onSubmit={(values, { setSubmitting }) => {
-          setTimeout(() => {
-            alert(JSON.stringify(values, null, 2));
-            setSubmitting(false);
-          }, 500);
-        }}
+        validate={validate}
+        onSubmit={handleSubmit}
         enableReinitialize={true}
         render={CustomFormValidate}
       />
