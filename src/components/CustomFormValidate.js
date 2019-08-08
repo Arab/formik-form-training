@@ -1,12 +1,10 @@
 import React from "react";
 import MyForm from "./MyForm";
 
-const CustomFormValidate = props => {
-  const { values, errors } = props;
-  if (values.todos.length > 0 && !values.todos.some(item => item)) {
-    errors.todosEmpty = "nie mozesz zostawic inputow pustych ;)";
-  }
-  const newProps = { ...props, errors };
+const CustomFormValidate = (props, foo) => {
+  // console.log("CustomFormValidate");
+  const newProps = foo(props);
+  // console.log(newProps);
   return <MyForm {...newProps} />;
 };
 
