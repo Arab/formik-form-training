@@ -23,11 +23,7 @@ const Todos = props => {
       {todos && todos.length > 0 ? (
         todos.map((todo, index) => (
           <div key={index}>
-            {index > 2 ? (
-              <CustomField index={index} disabled />
-            ) : (
-              <CustomField index={index} />
-            )}
+            <CustomField index={index} disabled={index > 2} />
             <button type="button" onClick={handleRemove(index)}>
               -
             </button>

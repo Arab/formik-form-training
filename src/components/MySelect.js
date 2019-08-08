@@ -15,9 +15,6 @@ const MySelect = ({ error, value, touched, onBlur, onChange }) => {
     onChange("destination", value);
   };
 
-  const handleBlur = () => {
-    onBlur();
-  };
   const handleMySelectAll = () => {
     onChange("destination", options);
   };
@@ -30,7 +27,7 @@ const MySelect = ({ error, value, touched, onBlur, onChange }) => {
           options={options}
           isMulti
           onChange={handleChange}
-          onBlur={handleBlur}
+          onBlur={onBlur}
           value={value}
         />
         {!!error && touched && (
