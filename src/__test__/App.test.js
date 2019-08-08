@@ -1,49 +1,36 @@
-import React from "react";
-import ReactDOM from "react-dom";
-import {
-  render,
-  fireEvent,
-  cleanup,
-  waitForElement,
-  wait,
-  prettyDOM
-} from "@testing-library/react";
-import "@testing-library/jest-dom/extend-expect";
+import { fireEvent, waitForElement, wait } from "@testing-library/react";
 import selectEvent from "react-select-event";
 import userEvent from "@testing-library/user-event";
 
 import App from "../containers/App";
-afterEach(cleanup);
-it("renders without crashing", () => {
-  const div = document.createElement("div");
-  ReactDOM.render(<App />, div);
-  ReactDOM.unmountComponentAtNode(div);
-});
+
+const setup = buildSetup(App);
+
 test("snapshot of app", () => {
-  const { container } = render(<App />);
+  const { container } = setup();
   expect(container).toMatchSnapshot();
 });
 
 test("name input exists", () => {
-  const { getByPlaceholderText } = render(<App />);
+  const { getByPlaceholderText } = setup();
   const input = getByPlaceholderText("Enter your name");
   expect(input).toBeInTheDocument();
 });
 
 test("last name input exists", () => {
-  const { getByPlaceholderText } = render(<App />);
+  const { getByPlaceholderText } = setup();
   const input = getByPlaceholderText("Enter your last name");
   expect(input).toBeInTheDocument();
 });
 
 test("age input exists", () => {
-  const { getByPlaceholderText } = render(<App />);
+  const { getByPlaceholderText } = setup();
   const input = getByPlaceholderText("Enter your age");
   expect(input).toBeInTheDocument();
 });
 
 test("male/female radio buttons exists and clicking change them", () => {
-  const { getByLabelText } = render(<App />);
+  const { getByLabelText } = setup();
   const male = getByLabelText("Male");
   const female = getByLabelText("Female");
   expect(male).toBeInTheDocument();
@@ -56,7 +43,7 @@ test("male/female radio buttons exists and clicking change them", () => {
 });
 
 test("phone number shows corectly - every 3 digits", async () => {
-  const { getByLabelText } = render(<App />);
+  const { getByLabelText } = setup();
   const actualyTypeing = (input, text) => {
     const oldValue = input.value;
     const newValue = oldValue + text;
@@ -84,19 +71,19 @@ test("phone number shows corectly - every 3 digits", async () => {
 });
 
 test("select destination exists", () => {
-  const { getByLabelText } = render(<App />);
+  const { getByLabelText } = setup();
   const selectReact = getByLabelText(/select your destination/i);
   expect(selectReact).toBeInTheDocument();
 });
 
 test("select all button exists", () => {
-  const { getByText } = render(<App />);
+  const { getByText } = setup();
   const selectAllButton = getByText(/^select all$/i);
   expect(selectAllButton).toBeInTheDocument();
 });
 
 test("dietary checkboxes exists and when other is chosen there is aditional text input", async () => {
-  const { getByLabelText, findByPlaceholderText } = render(<App />);
+  const { getByLabelText, findByPlaceholderText } = setup();
   const vegan = getByLabelText(/are you vegan?/i);
   const kosher = getByLabelText(/do you want kosher food?/i);
   const lactose = getByLabelText(/can you handle lactose?/i);
@@ -115,7 +102,7 @@ test("dietary checkboxes exists and when other is chosen there is aditional text
 });
 
 test("wish list label and add a thing button exists", () => {
-  const { getByText } = render(<App />);
+  const { getByText } = setup();
   const wishList = getByText(/things you wish to not forget:/i);
   const addAThingButton = getByText(/add a thing/i);
   expect(wishList).toBeInTheDocument();
@@ -123,7 +110,7 @@ test("wish list label and add a thing button exists", () => {
 });
 
 test("Reset and Submit buttons exists", () => {
-  const { getByText } = render(<App />);
+  const { getByText } = setup();
   const resetButton = getByText(/reset/i);
   const submitButton = getByText("Submit");
 
@@ -134,7 +121,7 @@ test("Reset and Submit buttons exists", () => {
 //------------------- VALIDATION ---------------------------------------------------
 
 test("name input empty validation", async () => {
-  const { getByPlaceholderText, container, findByTestId } = render(<App />);
+  const { getByPlaceholderText, container, findByTestId } = setup();
   const inputName = getByPlaceholderText("Enter your name");
   expect(container.innerHTML).not.toMatch("Required");
   fireEvent.blur(inputName);
@@ -143,7 +130,7 @@ test("name input empty validation", async () => {
 });
 
 test("name input to short text validation", async () => {
-  const { getByPlaceholderText, container, findByTestId } = render(<App />);
+  const { getByPlaceholderText, container, findByTestId } = setup();
   const inputName = getByPlaceholderText("Enter your name");
   expect(container.innerHTML).not.toMatch("Required");
   fireEvent.change(inputName, { target: { value: "aa" } });
@@ -155,7 +142,7 @@ test("name input to short text validation", async () => {
 });
 
 test("name input is not Piotr text validation", async () => {
-  const { getByPlaceholderText, container, findByTestId } = render(<App />);
+  const { getByPlaceholderText, container, findByTestId } = setup();
   const inputName = getByPlaceholderText("Enter your name");
   expect(container.innerHTML).not.toMatch("Required");
   fireEvent.change(inputName, { target: { value: "Piotra" } });
@@ -165,7 +152,7 @@ test("name input is not Piotr text validation", async () => {
 });
 
 test("name input validation hide when proper input", async () => {
-  const { getByPlaceholderText, container, findByTestId } = render(<App />);
+  const { getByPlaceholderText, container, findByTestId } = setup();
   const inputName = getByPlaceholderText("Enter your name");
   expect(container.innerHTML).not.toMatch("Required");
   fireEvent.change(inputName, { target: { value: "Piotra" } });
@@ -179,7 +166,7 @@ test("name input validation hide when proper input", async () => {
 });
 
 test("name input validation trigered by submit button", async () => {
-  const { container, findByTestId, getByText } = render(<App />);
+  const { container, findByTestId, getByText } = setup();
   const submitBtn = getByText("Submit");
   expect(container.innerHTML).not.toMatch("Required");
   fireEvent.click(submitBtn);
@@ -188,9 +175,7 @@ test("name input validation trigered by submit button", async () => {
 });
 
 test("last name input validation", async () => {
-  const { container, findByTestId, getByPlaceholderText, findByText } = render(
-    <App />
-  );
+  const { container, findByTestId, getByPlaceholderText, findByText } = setup();
   const input = getByPlaceholderText("Enter your last name");
   expect(container.innerHTML).not.toMatch("Last Name is Required");
   userEvent.click(input);
@@ -212,7 +197,7 @@ test("last name input validation", async () => {
 });
 
 test("age input validation", async () => {
-  const { getByPlaceholderText, findByTestId } = render(<App />);
+  const { getByPlaceholderText, findByTestId } = setup();
   const ageInput = getByPlaceholderText("Enter your age");
   fireEvent.focus(ageInput);
   fireEvent.blur(ageInput);
@@ -222,7 +207,7 @@ test("age input validation", async () => {
 });
 
 test("phone number validation", async () => {
-  const { getByLabelText, findByTestId } = render(<App />);
+  const { getByLabelText, findByTestId } = setup();
   const phoneNumberInput = getByLabelText(/phone number/i);
   expect(phoneNumberInput).toBeInTheDocument();
   expect(phoneNumberInput.value).toBe("+48 ");
@@ -240,7 +225,7 @@ test("dietary restriction validation", async () => {
     findByTestId,
     findByPlaceholderText,
     getByTestId
-  } = render(<App />);
+  } = setup();
 
   const vegan = getByLabelText(/are you vegan?/i);
   const kosher = getByLabelText(/do you want kosher food?/i);
@@ -281,7 +266,7 @@ test("dietary restriction validation", async () => {
 });
 
 test("todos validation", async () => {
-  const { findByTestId, getByText, findByText, getAllByText } = render(<App />);
+  const { findByTestId, getByText, findByText, getAllByText } = setup();
   const addAThingButton = getByText(/add a thing/i);
   fireEvent.click(addAThingButton);
   await waitForElement(() => findByText("-")).then(res => {
@@ -340,7 +325,7 @@ test("todos validation", async () => {
 });
 
 test("todos inputs are not empty on submit", async () => {
-  const { findByTestId, getByText, getAllByText } = render(<App />);
+  const { findByTestId, getByText, getAllByText } = setup();
   const addAThingButton = getByText(/add a thing/i);
   fireEvent.click(addAThingButton);
   userEvent.click(getByText("+"));
@@ -354,7 +339,7 @@ test("todos inputs are not empty on submit", async () => {
 });
 
 test("submit click fires all validation msgs", async () => {
-  const { container, findByTestId, getByText } = render(<App />);
+  const { container, findByTestId, getByText } = setup();
   const submitBtn = getByText("Submit");
   expect(container.innerHTML).not.toMatch("Required");
   fireEvent.click(submitBtn);
@@ -372,7 +357,7 @@ test("submit click fires all validation msgs", async () => {
 });
 
 test("validation msgs disapear after loading data from server", async () => {
-  const { container, findByTestId, getByText } = render(<App />);
+  const { container, findByTestId, getByText } = setup();
   const submitBtn = getByText("Submit");
   const serverBtn = getByText("CLICK ME IM SERVER");
   expect(container.innerHTML).not.toMatch("Required");
@@ -396,13 +381,13 @@ test("validation msgs disapear after loading data from server", async () => {
 //------------------- END OF VALIDATION ---------------------------------------------------
 
 test("reset button is disabled by default", () => {
-  const { getByText } = render(<App />);
+  const { getByText } = setup();
   const submitBtn = getByText("Reset");
   expect(submitBtn.disabled).toBe(true);
 });
 
 test("reset button is not disabled when form is changed", () => {
-  const { getByText, getByPlaceholderText } = render(<App />);
+  const { getByText, getByPlaceholderText } = setup();
   const submitBtn = getByText("Reset");
   const inputName = getByPlaceholderText("Enter your name");
   expect(submitBtn.disabled).toBe(true);
@@ -412,8 +397,7 @@ test("reset button is not disabled when form is changed", () => {
 });
 
 test("test select options on react-select", async () => {
-  const { getByLabelText } = render(<App />);
-
+  const { getByLabelText } = setup();
   const el = getByLabelText("Select your destination");
   expect(el.innerHTML).not.toMatch("Paris");
   expect(el.innerHTML).not.toMatch("London");
@@ -426,7 +410,7 @@ test("test select options on react-select", async () => {
 });
 
 test("test search and select option on react-select", () => {
-  const { getByLabelText, getAllByText } = render(<App />);
+  const { getByLabelText, getAllByText } = setup();
   const el = getByLabelText("Select your destination");
   const inp = el.querySelector("input");
   userEvent.type(inp, "London");
@@ -436,7 +420,7 @@ test("test search and select option on react-select", () => {
 });
 
 test("test search and press enter on react-select", () => {
-  const { getByLabelText } = render(<App />);
+  const { getByLabelText } = setup();
   const el = getByLabelText("Select your destination");
   const inp = el.querySelector("input");
   userEvent.type(inp, "London");
@@ -445,7 +429,7 @@ test("test search and press enter on react-select", () => {
 });
 
 test("test react-select with keyboard navigation", () => {
-  const { getByLabelText } = render(<App />);
+  const { getByLabelText } = setup();
   const el = getByLabelText("Select your destination");
   const inp = el.querySelector("input");
   fireEvent.focus(inp);
@@ -456,7 +440,7 @@ test("test react-select with keyboard navigation", () => {
 });
 
 test("test select all button", () => {
-  const { getByText } = render(<App />);
+  const { getByText } = setup();
   const selectAllButton = getByText(/Select All/i);
   fireEvent.click(selectAllButton);
   const destinations = [
@@ -470,7 +454,7 @@ test("test select all button", () => {
 });
 
 test("conditional rendering other input shows up when other checkbox is checked", async () => {
-  const { getByLabelText, findByPlaceholderText } = render(<App />);
+  const { getByLabelText, findByPlaceholderText } = setup();
   const other = getByLabelText(/inne:/i);
   const input = findByPlaceholderText(
     "Write anything we should know about your dietary restrictions"

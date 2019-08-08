@@ -1,5 +1,16 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`renders with difrent props 1`] = `
+<div>
+  <div
+    class="error"
+    data-testid="error-default"
+  >
+    some new message
+  </div>
+</div>
+`;
+
 exports[`renders without crashing 1`] = `
 <div>
   <div
