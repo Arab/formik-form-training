@@ -1,10 +1,7 @@
 import React from "react";
-import MyForm from "./MyForm";
 
-const CustomFormValidate = (props, foo) => {
-  // console.log("CustomFormValidate");
+const CustomFormValidate = (props, foo, MyForm) => {
   const newProps = foo(props);
-  // console.log(newProps);
   return <MyForm {...newProps} />;
 };
 

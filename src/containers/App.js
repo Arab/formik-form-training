@@ -3,6 +3,8 @@ import { Formik } from "formik";
 import { validate } from "../components/Validate";
 import { blankValues, fetchedInitialValues } from "../data/Values";
 import CustomFormValidate from "../components/CustomFormValidate";
+import { customValidate } from "../components/CustomValidate";
+import MyForm from "../components/MyForm";
 import "./App.css";
 
 function App() {
@@ -18,22 +20,8 @@ function App() {
     }, 500);
   };
 
-  const customValidate = props => {
-    // console.log("customValidate: ");
-    // console.log(props);
-    const { values, errors } = props;
-    if (values.todos.length > 0 && !values.todos.some(item => item)) {
-      errors.todosEmpty = "nie mozesz zostawic inputow pustych ;)";
-    }
-    const newProps = { ...props, errors };
-    // console.log(newProps);
-    return newProps;
-  };
-
   const handleRender = props => {
-    // console.log("handleRender: ");
-    // console.log(props);
-    const form = CustomFormValidate(props, customValidate);
+    const form = CustomFormValidate(props, customValidate, MyForm);
     return form;
   };
 
