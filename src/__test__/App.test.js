@@ -6,7 +6,8 @@ import {
   fireEvent,
   cleanup,
   waitForElement,
-  wait
+  wait,
+  prettyDOM
 } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import selectEvent from "react-select-event";
@@ -467,4 +468,20 @@ test("test select all button", () => {
     getByText("Warsaw")
   ];
   destinations.map(destination => expect(destination).toBeInTheDocument());
+});
+
+test("conditional rendering other input shows up when other checkbox is checked", async () => {
+  const { getByLabelText, findByPlaceholderText } = render(<App />);
+  const other = getByLabelText(/inne:/i);
+  const input = findByPlaceholderText(
+    "Write anything we should know about your dietary restrictions"
+  );
+  const dietaryWrapper = other.parentNode.parentNode;
+  expect(dietaryWrapper).toMatchSnapshot();
+
+  userEvent.click(other);
+  await waitForElement(() => input).then(res => {
+    expect(res).toBeInTheDocument();
+    expect(dietaryWrapper).toMatchSnapshot();
+  });
 });

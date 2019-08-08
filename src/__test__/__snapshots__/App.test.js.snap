@@ -1,5 +1,153 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`conditional rendering other input shows up when other checkbox is checked 1`] = `
+<div
+  class="dietary-restrictions-wrapper"
+>
+  <div>
+    <input
+      id="isVegan"
+      name="dietaryRestrictions.isVegan"
+      type="checkbox"
+      value=""
+    />
+    <label
+      class="dietaryRestriction__label"
+      for="isVegan"
+    >
+       
+      Are you vegan?
+    </label>
+  </div>
+  <div>
+    <input
+      id="isKosher"
+      name="dietaryRestrictions.isKosher"
+      type="checkbox"
+      value=""
+    />
+    <label
+      class="dietaryRestriction__label"
+      for="isKosher"
+    >
+       
+      Do you want kosher food?
+    </label>
+  </div>
+  <div>
+    <input
+      id="isLactoseFree"
+      name="dietaryRestrictions.isLactoseFree"
+      type="checkbox"
+      value=""
+    />
+    <label
+      class="dietaryRestriction__label"
+      for="isLactoseFree"
+    >
+       
+      Can you handle Lactose?
+    </label>
+  </div>
+  <div>
+    <input
+      id="other"
+      name="dietaryRestrictions.other.isOther"
+      type="checkbox"
+      value=""
+    />
+    <label
+      class="dietaryRestriction__label"
+      for="other"
+    >
+       
+      inne:
+    </label>
+  </div>
+  <div />
+</div>
+`;
+
+exports[`conditional rendering other input shows up when other checkbox is checked 2`] = `
+<div
+  class="dietary-restrictions-wrapper"
+>
+  <div>
+    <input
+      id="isVegan"
+      name="dietaryRestrictions.isVegan"
+      type="checkbox"
+      value=""
+    />
+    <label
+      class="dietaryRestriction__label"
+      for="isVegan"
+    >
+       
+      Are you vegan?
+    </label>
+  </div>
+  <div>
+    <input
+      id="isKosher"
+      name="dietaryRestrictions.isKosher"
+      type="checkbox"
+      value=""
+    />
+    <label
+      class="dietaryRestriction__label"
+      for="isKosher"
+    >
+       
+      Do you want kosher food?
+    </label>
+  </div>
+  <div>
+    <input
+      id="isLactoseFree"
+      name="dietaryRestrictions.isLactoseFree"
+      type="checkbox"
+      value=""
+    />
+    <label
+      class="dietaryRestriction__label"
+      for="isLactoseFree"
+    >
+       
+      Can you handle Lactose?
+    </label>
+  </div>
+  <div>
+    <input
+      id="other"
+      name="dietaryRestrictions.other.isOther"
+      type="checkbox"
+      value=""
+    />
+    <label
+      class="dietaryRestriction__label"
+      for="other"
+    >
+       
+      inne:
+    </label>
+  </div>
+  <div>
+    <div
+      class="other__input"
+    >
+      <input
+        class="other"
+        name="dietaryRestrictions.other.value"
+        placeholder="Write anything we should know about your dietary restrictions"
+        type="text"
+        value=""
+      />
+    </div>
+  </div>
+</div>
+`;
+
 exports[`snapshot of app 1`] = `
 <div>
   <div
