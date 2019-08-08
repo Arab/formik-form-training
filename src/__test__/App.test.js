@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "../containers/App";
 import {
   render,
   fireEvent,
@@ -13,8 +12,8 @@ import "@testing-library/jest-dom/extend-expect";
 import selectEvent from "react-select-event";
 import userEvent from "@testing-library/user-event";
 
+import App from "../containers/App";
 afterEach(cleanup);
-
 it("renders without crashing", () => {
   const div = document.createElement("div");
   ReactDOM.render(<App />, div);
